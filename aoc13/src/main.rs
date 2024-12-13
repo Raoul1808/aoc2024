@@ -2,14 +2,19 @@ use vec2::Vec2;
 
 mod vec2;
 
+#[cfg(not(feature = "bonus"))]
+type Num = u32;
+#[cfg(feature = "bonus")]
+type Num = u128;
+
 #[derive(Debug)]
 struct ClawMachine {
-    button_a: Vec2<u32>,
-    button_b: Vec2<u32>,
-    prize: Vec2<u32>,
+    button_a: Vec2<Num>,
+    button_b: Vec2<Num>,
+    prize: Vec2<Num>,
 }
 
-fn extract_numbers(line: &str, prefix: &str) -> (u32, u32) {
+fn extract_numbers(line: &str, prefix: &str) -> (Num, Num) {
     let result = line.strip_prefix(prefix).expect("invalid input");
     let result: Vec<_> = result.split(", ").collect();
     assert_eq!(result.len(), 2, "found invalid line");
@@ -18,7 +23,7 @@ fn extract_numbers(line: &str, prefix: &str) -> (u32, u32) {
     (x, y)
 }
 
-fn process_claw(claw: ClawMachine) -> u32 {
+fn process_claw(claw: ClawMachine) -> Num {
     let mut press_a = 0;
     let mut press_b;
     'button_a: loop {
@@ -56,7 +61,14 @@ fn main() {
         assert_eq!(chunk.len(), 3, "found incomplete chunk");
         let button_a = extract_numbers(chunk[0], "Button A: ").into();
         let button_b = extract_numbers(chunk[1], "Button B: ").into();
+        #[cfg(not(feature = "bonus"))]
         let prize = extract_numbers(chunk[2], "Prize: ").into();
+        #[cfg(feature = "bonus")]
+        let prize = {
+            const OFFSET: u128 = 10000000000000;
+            let numbers = extract_numbers(chunk[2], "Prize: ");
+            (numbers.0 + OFFSET, numbers.1 + OFFSET).into()
+        };
         claws.push(ClawMachine {
             button_a,
             button_b,
@@ -64,7 +76,7 @@ fn main() {
         });
     }
     let total = claws.len();
-    let tokens: u32 = claws
+    let tokens: Num = claws
         .into_iter()
         .enumerate()
         .map(|(i, claw)| {
