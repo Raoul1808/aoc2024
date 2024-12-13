@@ -12,6 +12,6 @@ These are the programs I made to solve this year's advent of code.
 8.
 9.
 10.
-11. Completed with bonus
+11. 2 stars
 12.
-13. Completed, gave up on bonus
+13. 1 star, gave up on bonus
